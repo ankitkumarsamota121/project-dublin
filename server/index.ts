@@ -1,16 +1,51 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
+import { ApolloServer } from 'apollo-server-express';
+import mongoose from 'mongoose';
+
+import { successClg, errorClg } from './src/utils/loggers';
+import resolvers from './src/graphql/resolvers';
+import typeDefs from './src/graphql/typeDefs';
+
+// Models
+import User from './src/models/User';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const MONGO_URI = process.env.MONGO_URI;
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  playground: NODE_ENV !== 'production',
+  context: { User },
 });
 
-app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
-});
+const startServer = () => {
+  try {
+    if (MONGO_URI) {
+      mongoose.connect(MONGO_URI, {
+        useCreateIndex: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: true,
+      });
+    } else {
+      throw new Error('Unable to connect to Database!');
+    }
+
+    server.applyMiddleware({ app });
+
+    app.listen(PORT, () => {
+      successClg(`🚀Server started on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    errorClg(error.message);
+  }
+};
+
+// Start the Server
+startServer();
