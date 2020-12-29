@@ -1,6 +1,9 @@
 import { Model } from 'mongoose';
-import { IUser } from './userInterfaces';
+import { ITodo } from './todoInterfaces';
+import { IAuth, IUser } from './userInterfaces';
 
 export interface IContext {
   User: Model<IUser>;
+  Todo: Model<ITodo>;
+  auth: IAuth;
 }

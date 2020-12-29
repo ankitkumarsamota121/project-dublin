@@ -11,6 +11,8 @@ import typeDefs from './src/graphql/typeDefs';
 import User from './src/models/User';
 import Todo from './src/models/Todo';
 
+import { protect } from './src/middlewares/auth';
+
 dotenv.config();
 
 const app = express();
@@ -22,7 +24,13 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   playground: NODE_ENV !== 'production',
-  context: { User, Todo },
+  context: ({ req }) => {
+    const token = req.headers.authorization || '';
+
+    const auth = protect(token);
+
+    return { auth, User, Todo };
+  },
 });
 
 const startServer = () => {

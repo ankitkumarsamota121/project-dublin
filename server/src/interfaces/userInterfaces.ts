@@ -18,6 +18,11 @@ export interface IAuthResp {
   token: string;
 }
 
+export interface IAuth {
+  userId?: string;
+  isAuth: boolean;
+}
+
 export interface ILoginArgs {
   email: IUser['email'];
   password: IUser['password'];

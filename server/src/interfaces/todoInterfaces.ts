@@ -5,3 +5,7 @@ export interface ITodo extends Document {
   desc: string;
   user: IUser;
 }
+
+export interface ICreateTodoArgs {
+  desc: string;
+}

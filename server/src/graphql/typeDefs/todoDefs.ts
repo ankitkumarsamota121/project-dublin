@@ -6,12 +6,11 @@ export default gql`
   }
 
   extend type Mutation {
-    createTodo(desc: String!): Todo!
+    createTodo(desc: String!): String!
   }
 
   type Todo {
     desc: String
-    createdAt: DateTime
-    updatedAt: DateTime
+    user: User
   }
 `;
