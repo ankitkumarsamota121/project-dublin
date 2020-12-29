@@ -17,8 +17,13 @@ export interface IAuthResp {
   token: string;
 }
 
+export interface IDelUserResp {
+  success: boolean;
+  message: string;
+}
+
 export interface IAuth {
-  userId?: string;
+  userId?: Types.ObjectId;
   isAuth: boolean;
 }
 

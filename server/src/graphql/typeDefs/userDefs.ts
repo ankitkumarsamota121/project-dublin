@@ -9,6 +9,7 @@ export default gql`
 
   extend type Mutation {
     registerUser(name: String!, email: String!, password: String!): AuthResp!
+    deleteUser: DelUserResp!
   }
 
   type User {
@@ -19,5 +20,10 @@ export default gql`
   type AuthResp {
     user: User!
     token: String!
+  }
+
+  type DelUserResp {
+    success: Boolean
+    message: String
   }
 `;

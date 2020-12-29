@@ -1,5 +1,11 @@
 import { errorClg } from '../../utils/loggers';
-import { IUser, IAuthResp, ILoginArgs, IRegisterArgs } from '../../interfaces/userInterfaces';
+import {
+  IUser,
+  IAuthResp,
+  ILoginArgs,
+  IRegisterArgs,
+  IDelUserResp,
+} from '../../interfaces/userInterfaces';
 import { IContext } from '../../interfaces/gqlInterfaces';
 import generateToken from '../../utils/generateToken';
 
@@ -73,6 +79,34 @@ export default {
         }
 
         return { user, token };
+      } catch (error) {
+        errorClg(error.message);
+        return error;
+      }
+    },
+
+    deleteUser: async (
+      _: any,
+      __: any,
+      { auth, User, Todo }: IContext
+    ): Promise<IDelUserResp | Error> => {
+      try {
+        if (!auth.isAuth) {
+          return new Error('User not authenticated!');
+        }
+
+        const user = await User.findById(auth.userId);
+        if (!user) {
+          return new Error('User not found!');
+        }
+
+        await Todo.deleteMany({ user: user._id });
+        await User.deleteOne({ _id: auth.userId });
+
+        return {
+          success: true,
+          message: 'User deleted successfully!',
+        };
       } catch (error) {
         errorClg(error.message);
         return error;

@@ -1,5 +1,5 @@
 import { errorClg } from '../../utils/loggers';
-import { ITodo } from '../../interfaces/todoInterfaces';
+import { IDelArgs, IDelResp, IEditArgs, ITodo } from '../../interfaces/todoInterfaces';
 import { IContext } from '../../interfaces/gqlInterfaces';
 import { ICreateTodoArgs } from '../../interfaces/todoInterfaces';
 
@@ -53,6 +53,63 @@ export default {
 
         user.todos.push(todo._id);
         await user.save();
+
+        return todo;
+      } catch (error) {
+        errorClg(error.message);
+        return error;
+      }
+    },
+
+    deleteTodo: async (
+      _: any,
+      { id }: IDelArgs,
+      { auth, Todo }: IContext
+    ): Promise<IDelResp | Error> => {
+      try {
+        if (!auth.isAuth || !auth.userId) return new Error('User not authenticated!');
+
+        const todo = await Todo.findById(id);
+        if (!todo) {
+          return new Error('Unable to find a todo with the given ID.');
+        }
+
+        if (!todo.user.equals(auth.userId)) {
+          return new Error('Access Denied!');
+        }
+
+        await Todo.deleteOne({ _id: id });
+        return {
+          success: true,
+          message: 'Todo was successfully deleted!',
+        };
+      } catch (error) {
+        errorClg(error.message);
+        return error;
+      }
+    },
+
+    editTodo: async (
+      _: any,
+      { id, desc, isCompleted }: IEditArgs,
+      { auth, Todo }: IContext
+    ): Promise<ITodo | Error> => {
+      try {
+        if (!auth.isAuth || !auth.userId) return new Error('User not authenticated!');
+
+        const todo = await Todo.findById(id);
+        if (!todo) {
+          return new Error('Unable to find a todo with the given ID.');
+        }
+
+        if (!todo.user.equals(auth.userId)) {
+          return new Error('Access Denied!');
+        }
+
+        if (desc) todo.desc = desc;
+        if (isCompleted) todo.isCompleted = isCompleted;
+
+        await todo.save();
 
         return todo;
       } catch (error) {
