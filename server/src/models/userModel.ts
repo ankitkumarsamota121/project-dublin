@@ -1,10 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-import { TodoSchema } from './Todo';
-import { IUser } from '../interfaces/userInterfaces';
+import { IUserModel } from '../interfaces/userInterfaces';
 
-const UserSchema: Schema<IUser> = new Schema(
+const UserSchema = new Schema(
   {
     name: { type: String, required: true },
     email: {
@@ -16,7 +15,12 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       required: true,
     },
-    todos: [TodoSchema],
+    todos: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Todo',
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -26,7 +30,7 @@ UserSchema.methods.matchPassword = async function (password: string): Promise<bo
   return await bcrypt.compare(password, user.password);
 };
 
-UserSchema.pre('save', async function (this: IUser, next) {
+UserSchema.pre<IUserModel>('save', async function (next) {
   const user = this;
   if (!user.isModified('password')) {
     next();
@@ -36,4 +40,4 @@ UserSchema.pre('save', async function (this: IUser, next) {
   user.password = await bcrypt.hash(user.password, salt);
 });
 
-export default mongoose.model<IUser>('User', UserSchema);
+export default mongoose.model<IUserModel>('User', UserSchema);

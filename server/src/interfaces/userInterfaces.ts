@@ -1,16 +1,15 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { ITodo } from './todoInterfaces';
 
-export interface IUser extends Document {
+export interface IUser {
   name: string;
-  password: string;
   email: string;
-  todos?: ITodo[];
-  matchPassword(password: string): Promise<boolean>;
+  password: string;
+  todos: Types.ObjectId[] | ITodo[];
 }
 
-export interface IGetUserArgs {
-  id: string;
+export interface IUserModel extends IUser, Document {
+  matchPassword(password: string): Promise<boolean>;
 }
 
 export interface IAuthResp {
@@ -25,5 +24,11 @@ export interface IAuth {
 
 export interface ILoginArgs {
   email: IUser['email'];
+  password: IUser['password'];
+}
+
+export interface IRegisterArgs {
+  email: IUser['email'];
+  name: IUser['name'];
   password: IUser['password'];
 }

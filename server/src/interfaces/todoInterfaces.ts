@@ -1,10 +1,12 @@
-import { Document } from 'mongoose';
-import { IUser } from './userInterfaces';
+import { Document, Types } from 'mongoose';
 
-export interface ITodo extends Document {
+export interface ITodo {
   desc: string;
-  user: IUser;
+  isCompleted: boolean;
+  user: Types.ObjectId;
 }
+
+export interface ITodoModel extends ITodo, Document {}
 
 export interface ICreateTodoArgs {
   desc: string;

@@ -1,5 +1,5 @@
 import { errorClg } from '../../utils/loggers';
-import { IUser, IGetUserArgs, IAuthResp, ILoginArgs } from '../../interfaces/userInterfaces';
+import { IUser, IAuthResp, ILoginArgs, IRegisterArgs } from '../../interfaces/userInterfaces';
 import { IContext } from '../../interfaces/gqlInterfaces';
 import generateToken from '../../utils/generateToken';
 
@@ -14,14 +14,14 @@ export default {
         return error;
       }
     },
-    getUser: async (_: any, { id }: IGetUserArgs, { User }: IContext): Promise<IUser | Error> => {
+    getUser: async (_: any, __: any, { auth, User }: IContext): Promise<IUser | Error> => {
       try {
-        const user = await User.findById(id);
-        if (user) {
-          return user;
-        } else {
-          throw new Error('User not found!');
+        const user = await User.findById(auth.userId);
+        if (!user) {
+          return new Error('User not found!');
         }
+
+        return user;
       } catch (error) {
         errorClg(error.message);
         return error;
@@ -58,11 +58,11 @@ export default {
   Mutation: {
     registerUser: async (
       _: any,
-      { name, email, password }: IUser,
+      { name, email, password }: IRegisterArgs,
       { User }: IContext
     ): Promise<IAuthResp | Error> => {
       try {
-        const user: IUser = await User.create({ name, email, password, todos: [] });
+        const user = await User.create({ name, email, password, todos: [] });
         if (!user) {
           throw new Error('Some Error occured. Unable to create new User!');
         }

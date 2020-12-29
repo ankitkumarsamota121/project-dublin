@@ -8,8 +8,8 @@ import resolvers from './src/graphql/resolvers';
 import typeDefs from './src/graphql/typeDefs';
 
 // Models
-import User from './src/models/User';
-import Todo from './src/models/Todo';
+import User from './src/models/userModel';
+import Todo from './src/models/todoModel';
 
 import { protect } from './src/middlewares/auth';
 
