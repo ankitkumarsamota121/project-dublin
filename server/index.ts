@@ -9,6 +9,7 @@ import typeDefs from './src/graphql/typeDefs';
 
 // Models
 import User from './src/models/User';
+import Todo from './src/models/Todo';
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   playground: NODE_ENV !== 'production',
-  context: { User },
+  context: { User, Todo },
 });
 
 const startServer = () => {

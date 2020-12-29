@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+import { TodoSchema } from './Todo';
 import { IUser } from '../interfaces/userInterfaces';
 
 const UserSchema: Schema<IUser> = new Schema(
@@ -15,6 +16,7 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       required: true,
     },
+    todos: [TodoSchema],
   },
   { timestamps: true }
 );
