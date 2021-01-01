@@ -5,10 +5,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 
 import reducers from './reducers';
 
-// Interfaces
-import { IToken } from './interfaces/rootInterfaces';
-
-let tokenFromStorage: IToken | null = null;
+let tokenFromStorage: string = '';
 
 if (typeof window !== 'undefined') {
   const token = localStorage.getItem('token');
@@ -18,7 +15,7 @@ if (typeof window !== 'undefined') {
 }
 
 const initialState = {
-  userLogin: { token: tokenFromStorage },
+  token: tokenFromStorage,
 };
 
 const middlewares = [thunk];
