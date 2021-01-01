@@ -1,12 +1,16 @@
 import '../styles/globals.css';
+import '../styles/bootstrap.min.css';
 import { ApolloProvider } from '@apollo/client';
 
 import client from '../src/graphql/config';
+import Root from '../src/redux/Root';
 
 function MyApp({ Component, pageProps }) {
   return (
     <ApolloProvider client={client}>
-      <Component {...pageProps} />
+      <Root>
+        <Component {...pageProps} />
+      </Root>
     </ApolloProvider>
   );
 }
