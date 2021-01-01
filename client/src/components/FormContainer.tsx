@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 
-const FormContainer = ({ children }: any) => {
+const FormContainer = ({ children }: { children: JSX.Element[] }) => {
   return (
     <Container>
       <Row className='justify-content-md-center'>

@@ -1,26 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React, { useState, useEffect } from 'react';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../redux/actions';
 
 import { useMutation } from '@apollo/client';
 import { LOGIN_USER } from '../graphql/mutations';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import FormContainer from '../components/FormContainer';
-import Link from 'next/link';
 
-import { login } from '../redux/actions';
+// Interfaces
+import { IStoreState, IUser } from '../interfaces';
 
-interface ILoginScreenProps {}
-
-interface IStoreState {
+interface ILoginResp {
+  user: IUser;
   token: string;
 }
+interface ILoginArgs {
+  email: string;
+  password: string;
+}
 
-const LoginScreen: React.FC<ILoginScreenProps> = () => {
-  const [loginUser, { data }] = useMutation(LOGIN_USER);
+const LoginScreen: React.FC = () => {
+  const [loginUser, { data }] = useMutation<{ loginUser: ILoginResp }, ILoginArgs>(LOGIN_USER);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -39,7 +46,7 @@ const LoginScreen: React.FC<ILoginScreenProps> = () => {
     }
   }, [data, token]);
 
-  const submitHandler = (e: any) => {
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     loginUser({

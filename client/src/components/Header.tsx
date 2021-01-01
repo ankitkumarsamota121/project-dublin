@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navbar, Nav, NavDropdown, Form, FormControl, Button, Container } from 'react-bootstrap';
 
@@ -9,22 +9,25 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { GET_USER } from '../graphql/queries';
 
-interface IStoreState {
-  token: string;
+// Interfaces
+import { IStoreState, IUser } from '../interfaces';
+
+interface IGetResp {
+  getUser: IUser;
 }
 
 const Header = () => {
-  const { loading, error, data } = useQuery(GET_USER);
+  const { loading: loadingUser, data } = useQuery<IGetResp>(GET_USER);
+
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const dispatch = useDispatch();
   const token = useSelector((state: IStoreState) => state.token);
 
   useEffect(() => {
-    // console.log(data);
-    // console.log(loading);
-    // console.log(error);
-  }, [data, loading, error]);
+    // setLoading(loadingUser);
+  }, [loading]);
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -40,7 +43,9 @@ const Header = () => {
         <Navbar.Toggle aria-controls='basic-navbar-nav' />
         <Navbar.Collapse id='basic-navbar-nav'>
           <Nav className='ml-auto'>
-            {token ? (
+            {loading ? (
+              'Loading...'
+            ) : token ? (
               <NavDropdown title={data ? data.getUser.name : ''} id='username'>
                 <NavDropdown.Item onClick={logoutHandler}>Logout</NavDropdown.Item>
               </NavDropdown>

@@ -26,7 +26,7 @@ const store = createStore(
   composeWithDevTools(applyMiddleware(...middlewares))
 );
 
-const Root = ({ children }: any) => {
+const Root = ({ children }: { children: React.FC }) => {
   return <Provider store={store}>{children}</Provider>;
 };
 

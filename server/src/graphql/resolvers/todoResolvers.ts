@@ -13,7 +13,7 @@ export default {
     ): Promise<ITodo[] | ApolloError> => {
       try {
         if (!auth.isAuth) {
-          return new ApolloError('User not authenticated!');
+          throw new Error('User not authenticated!');
         }
 
         const user = await User.findById(auth.userId);

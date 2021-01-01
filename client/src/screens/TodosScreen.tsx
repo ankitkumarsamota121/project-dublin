@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { CREATE_TODO, DELETE_TODO, EDIT_TODO } from '../graphql/mutations';
 import { GET_ALL_TODOS } from '../graphql/queries';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -23,17 +23,53 @@ import FormContainer from '../components/FormContainer';
 
 interface ITodosScreenProps {}
 
-interface IStoreState {
-  token: string;
+// Interfaces
+import { IStoreState, ITodo, IDelResp } from '../interfaces';
+
+interface IGetTodos {
+  getAllTodos: ITodo[];
+}
+
+interface ICreateResp extends ITodo {}
+
+interface ICreateArgs {
+  desc: string;
+}
+
+interface IEditResp extends ITodo {}
+
+interface IEditArgs {
+  id: string;
+  desc?: string;
+  isCompleted?: boolean;
+}
+
+interface IDeleteResp extends IDelResp {}
+
+interface IDeleteArgs {
+  id: string;
 }
 
 const TodosScreen: React.FC<ITodosScreenProps> = () => {
   const router = useRouter();
-  const { loading, error, data: getData, refetch } = useQuery(GET_ALL_TODOS);
-  const [createTodo, { data: createData }] = useMutation(CREATE_TODO);
-  const [editTodo, { data: editData }] = useMutation(EDIT_TODO);
-  const [deleteTodo, { data: deleteData }] = useMutation(DELETE_TODO);
+
+  const { loading: loadingGet, data: getData, refetch } = useQuery<IGetTodos>(GET_ALL_TODOS, {
+    fetchPolicy: 'network-only',
+  });
+  const [createTodo, { loading: loadingCreate }] = useMutation<
+    { createTodo: ICreateResp },
+    ICreateArgs
+  >(CREATE_TODO);
+  const [editTodo, { loading: loadingEdit }] = useMutation<{ editTodo: IEditResp }, IEditArgs>(
+    EDIT_TODO
+  );
+  const [deleteTodo, { loading: loadingDelete }] = useMutation<
+    { deleteTodo: IDeleteResp },
+    IDeleteArgs
+  >(DELETE_TODO);
+
   const [todo, setTodo] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const token = useSelector((state: IStoreState) => state.token);
 
@@ -41,28 +77,34 @@ const TodosScreen: React.FC<ITodosScreenProps> = () => {
     if (!token) {
       router.push('/login');
     }
-    console.log(getData);
-  }, [token, editData, createData, getData, deleteTodo]);
+    refetch();
+    setLoading(loadingCreate || loadingEdit || loadingDelete);
+  }, [token, loadingCreate, loadingEdit, loadingDelete]);
 
-  const createHandler = (e: any) => {
+  useEffect(() => {
+    if (getData) {
+      console.log('Fetched Data!');
+    }
+  }, [getData, loading]);
+
+  const createHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     createTodo({ variables: { desc: todo } });
-    refetch();
+    setTodo('');
   };
 
   const editHandler = (id: string) => {
     editTodo({ variables: { id, isCompleted: true } });
-    refetch();
   };
 
   const deleteHandler = (id: string) => {
     deleteTodo({ variables: { id } });
-    refetch();
   };
 
   return (
     <>
+      {console.log('Rendering!!!')}
       <Header />
       <Container className='mt-4' style={{ minHeight: '80vh' }}>
         <FormContainer>
@@ -74,22 +116,36 @@ const TodosScreen: React.FC<ITodosScreenProps> = () => {
               value={todo}
               onChange={(e) => setTodo(e.target.value)}
             />
-            <Button className='ml-4' variant='success' type='submit'>
+            <Button className='ml-4' variant='success' type='submit' disabled={loadingCreate}>
               Add
             </Button>
           </Form>
           <ListGroup className='mt-2'>
             {getData
-              ? getData.getAllTodos.map((todo: any) => (
+              ? getData.getAllTodos.map((todo) => (
                   <ListGroup.Item key={todo.id}>
                     <Row className='align-items-center'>
-                      <Col xs={9}>Some Todo</Col>
+                      <Col xs={9}>
+                        {todo.isCompleted ? (
+                          <p style={{ textDecoration: 'line-through' }}>{todo.desc}</p>
+                        ) : (
+                          <p>{todo.desc}</p>
+                        )}
+                      </Col>
                       <Col xs={3}>
                         <ButtonGroup className='ml-auto' size='sm'>
-                          <Button variant='success' onClick={() => editHandler(todo.id)}>
+                          <Button
+                            variant='success'
+                            disabled={loadingEdit}
+                            onClick={() => editHandler(todo.id)}
+                          >
                             Done
                           </Button>
-                          <Button variant='danger' onClick={() => deleteHandler(todo.id)}>
+                          <Button
+                            variant='danger'
+                            disabled={loadingDelete}
+                            onClick={() => deleteHandler(todo.id)}
+                          >
                             Delete
                           </Button>
                         </ButtonGroup>
@@ -102,6 +158,7 @@ const TodosScreen: React.FC<ITodosScreenProps> = () => {
         </FormContainer>
       </Container>
       <Footer />
+      {loading}
     </>
   );
 };

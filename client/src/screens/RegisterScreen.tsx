@@ -1,25 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 
-import { useQuery, useMutation } from '@apollo/client';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../redux/actions';
+
+import { useMutation } from '@apollo/client';
 import { REGISTER_USER } from '../graphql/mutations';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import FormContainer from '../components/FormContainer';
-import Link from 'next/link';
 
-import { login } from '../redux/actions';
+// Interfaces
+import { IStoreState, IUser } from '../interfaces';
 
-interface IRegisterScreenProps {}
-
-interface IStoreState {
+interface IRegisterResp {
+  user: IUser;
   token: string;
 }
+interface IRegisterArgs {
+  name: string;
+  email: string;
+  password: string;
+}
 
-const RegisterScreen: React.FC<IRegisterScreenProps> = () => {
+const RegisterScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,21 +36,21 @@ const RegisterScreen: React.FC<IRegisterScreenProps> = () => {
   const token = useSelector((state: IStoreState) => state.token);
   const router = useRouter();
 
-  const [registerUser, { data }] = useMutation(REGISTER_USER);
+  const [registerUser, { data }] = useMutation<{ registerUser: IRegisterResp }, IRegisterArgs>(
+    REGISTER_USER
+  );
 
   useEffect(() => {
     console.log(data, token);
     if (data) {
-      // Dispatch UserLogin here.
       dispatch(login(data.registerUser.token));
-      //   router.push('/profile');
     }
     if (token) {
       router.push('/todos');
     }
   }, [data, token]);
 
-  const submitHandler = (e: any) => {
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -65,9 +72,6 @@ const RegisterScreen: React.FC<IRegisterScreenProps> = () => {
       <Container className='mt-4' style={{ minHeight: '80vh' }}>
         <FormContainer>
           <h1>Sign Up</h1>
-          {/* {message && <Message variant='danger'>{message}</Message>}
-            {error && <Message variant='danger'>{error}</Message>}
-            {loading && <Loader />} */}
           <Form onSubmit={submitHandler}>
             <Form.Group controlId='name'>
               <Form.Control

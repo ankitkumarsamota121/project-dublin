@@ -1,6 +1,7 @@
+import { IActionType } from '../interfaces/rootInterfaces';
 import { ActionTypes } from './types';
 
-export const login = (token: string) => {
+export const login = (token: string): IActionType => {
   try {
     localStorage.setItem('token', JSON.stringify(token));
 
@@ -10,10 +11,14 @@ export const login = (token: string) => {
     };
   } catch (err) {
     console.log(err);
+    return {
+      type: ActionTypes.USER_LOGIN,
+      payload: '',
+    };
   }
 };
 
-export const logout = () => {
+export const logout = (): IActionType => {
   try {
     localStorage.setItem('token', '');
 
@@ -23,5 +28,9 @@ export const logout = () => {
     };
   } catch (err) {
     console.log(err);
+    return {
+      type: ActionTypes.USER_LOGOUT,
+      payload: '',
+    };
   }
 };
