@@ -4,10 +4,10 @@ export default gql`
   extend type Query {
     getAllUsers: [User]!
     getUser: User!
-    loginUser(email: String!, password: String!): AuthResp!
   }
 
   extend type Mutation {
+    loginUser(email: String!, password: String!): AuthResp!
     registerUser(name: String!, email: String!, password: String!): AuthResp!
     deleteUser: DelUserResp!
   }

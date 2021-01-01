@@ -5,3 +5,12 @@ export const HELLO_WORLD = gql`
     hello
   }
 `;
+
+export const GET_USER = gql`
+  query getUser {
+    getUser {
+      name
+      email
+    }
+  }
+`;

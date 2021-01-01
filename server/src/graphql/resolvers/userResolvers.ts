@@ -35,6 +35,9 @@ export default {
         return error;
       }
     },
+  },
+
+  Mutation: {
     loginUser: async (
       _: any,
       { email, password }: ILoginArgs,
@@ -61,9 +64,7 @@ export default {
         return error;
       }
     },
-  },
 
-  Mutation: {
     registerUser: async (
       _: any,
       { name, email, password }: IRegisterArgs,
