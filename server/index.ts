@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { ApolloServer } from 'apollo-server-express';
 import mongoose from 'mongoose';
 
@@ -16,6 +17,8 @@ import { protect } from './src/middlewares/auth';
 dotenv.config();
 
 const app = express();
+app.use(cors());
+
 const PORT = process.env.PORT || 4000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const MONGO_URI = process.env.MONGO_URI;

@@ -11,6 +11,8 @@ import generateToken from '../../utils/generateToken';
 
 export default {
   Query: {
+    hello: () => 'Hello World!',
+
     getAllUsers: async (_: any, args: null, { User }: IContext): Promise<IUser[] | Error> => {
       try {
         const users = await User.find();
