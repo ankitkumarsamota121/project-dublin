@@ -21,9 +21,9 @@ const Header = () => {
   const token = useSelector((state: IStoreState) => state.token);
 
   useEffect(() => {
-    console.log(data);
-    console.log(loading);
-    console.log(error);
+    // console.log(data);
+    // console.log(loading);
+    // console.log(error);
   }, [data, loading, error]);
 
   const logoutHandler = () => {

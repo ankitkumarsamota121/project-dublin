@@ -14,3 +14,13 @@ export const GET_USER = gql`
     }
   }
 `;
+
+export const GET_ALL_TODOS = gql`
+  query getAllTodos {
+    getAllTodos {
+      id
+      desc
+      isCompleted
+    }
+  }
+`;

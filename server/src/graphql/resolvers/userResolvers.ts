@@ -8,31 +8,32 @@ import {
 } from '../../interfaces/userInterfaces';
 import { IContext } from '../../interfaces/gqlInterfaces';
 import generateToken from '../../utils/generateToken';
+import { ApolloError } from 'apollo-server-express';
 
 export default {
   Query: {
     hello: () => 'Hello World!',
 
-    getAllUsers: async (_: any, args: null, { User }: IContext): Promise<IUser[] | Error> => {
+    getAllUsers: async (_: any, args: null, { User }: IContext): Promise<IUser[] | ApolloError> => {
       try {
         const users = await User.find();
         return users;
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
-    getUser: async (_: any, __: any, { auth, User }: IContext): Promise<IUser | Error> => {
+    getUser: async (_: any, __: any, { auth, User }: IContext): Promise<IUser | ApolloError> => {
       try {
         const user = await User.findById(auth.userId);
         if (!user) {
-          return new Error('User not found!');
+          return new ApolloError('User not found!');
         }
 
         return user;
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
   },
@@ -42,7 +43,7 @@ export default {
       _: any,
       { email, password }: ILoginArgs,
       { User }: IContext
-    ): Promise<IAuthResp | Error> => {
+    ): Promise<IAuthResp | ApolloError> => {
       try {
         const user = await User.findOne({ email });
         if (!user) {
@@ -61,7 +62,7 @@ export default {
         }
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
 
@@ -69,7 +70,7 @@ export default {
       _: any,
       { name, email, password }: IRegisterArgs,
       { User }: IContext
-    ): Promise<IAuthResp | Error> => {
+    ): Promise<IAuthResp | ApolloError> => {
       try {
         const user = await User.create({ name, email, password, todos: [] });
         if (!user) {
@@ -84,7 +85,7 @@ export default {
         return { user, token };
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
 
@@ -92,15 +93,15 @@ export default {
       _: any,
       __: any,
       { auth, User, Todo }: IContext
-    ): Promise<IDelUserResp | Error> => {
+    ): Promise<IDelUserResp | ApolloError> => {
       try {
         if (!auth.isAuth) {
-          return new Error('User not authenticated!');
+          return new ApolloError('User not authenticated!');
         }
 
         const user = await User.findById(auth.userId);
         if (!user) {
-          return new Error('User not found!');
+          return new ApolloError('User not found!');
         }
 
         await Todo.deleteMany({ user: user._id });
@@ -112,7 +113,7 @@ export default {
         };
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
   },

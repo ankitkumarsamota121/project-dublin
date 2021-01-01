@@ -2,18 +2,23 @@ import { errorClg } from '../../utils/loggers';
 import { IDelArgs, IDelResp, IEditArgs, ITodo } from '../../interfaces/todoInterfaces';
 import { IContext } from '../../interfaces/gqlInterfaces';
 import { ICreateTodoArgs } from '../../interfaces/todoInterfaces';
+import { ApolloError } from 'apollo-server-express';
 
 export default {
   Query: {
-    getAllTodos: async (_: any, __: any, { auth, User }: IContext): Promise<ITodo[] | Error> => {
+    getAllTodos: async (
+      _: any,
+      __: any,
+      { auth, User }: IContext
+    ): Promise<ITodo[] | ApolloError> => {
       try {
         if (!auth.isAuth) {
-          return new Error('User not authenticated!');
+          return new ApolloError('User not authenticated!');
         }
 
         const user = await User.findById(auth.userId);
         if (!user) {
-          return new Error('User not found!');
+          return new ApolloError('User not found!');
         }
 
         await user.populate('todos').execPopulate();
@@ -25,7 +30,7 @@ export default {
         return todos;
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
   },
@@ -35,15 +40,15 @@ export default {
       _: any,
       { desc }: ICreateTodoArgs,
       { auth, User, Todo }: IContext
-    ): Promise<ITodo | Error> => {
+    ): Promise<ITodo | ApolloError> => {
       try {
         if (!auth.isAuth) {
-          return new Error('User not authenticated!');
+          return new ApolloError('User not authenticated!');
         }
 
         const user = await User.findById(auth.userId);
         if (!user) {
-          return new Error('User not found!');
+          return new ApolloError('User not found!');
         }
 
         const todo = await Todo.create({ desc, isCompleted: false, user: user._id });
@@ -57,7 +62,7 @@ export default {
         return todo;
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
 
@@ -65,17 +70,17 @@ export default {
       _: any,
       { id }: IDelArgs,
       { auth, Todo }: IContext
-    ): Promise<IDelResp | Error> => {
+    ): Promise<IDelResp | ApolloError> => {
       try {
-        if (!auth.isAuth || !auth.userId) return new Error('User not authenticated!');
+        if (!auth.isAuth || !auth.userId) return new ApolloError('User not authenticated!');
 
         const todo = await Todo.findById(id);
         if (!todo) {
-          return new Error('Unable to find a todo with the given ID.');
+          return new ApolloError('Unable to find a todo with the given ID.');
         }
 
         if (!todo.user.equals(auth.userId)) {
-          return new Error('Access Denied!');
+          return new ApolloError('Access Denied!');
         }
 
         await Todo.deleteOne({ _id: id });
@@ -85,7 +90,7 @@ export default {
         };
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
 
@@ -93,17 +98,17 @@ export default {
       _: any,
       { id, desc, isCompleted }: IEditArgs,
       { auth, Todo }: IContext
-    ): Promise<ITodo | Error> => {
+    ): Promise<ITodo | ApolloError> => {
       try {
-        if (!auth.isAuth || !auth.userId) return new Error('User not authenticated!');
+        if (!auth.isAuth || !auth.userId) return new ApolloError('User not authenticated!');
 
         const todo = await Todo.findById(id);
         if (!todo) {
-          return new Error('Unable to find a todo with the given ID.');
+          return new ApolloError('Unable to find a todo with the given ID.');
         }
 
         if (!todo.user.equals(auth.userId)) {
-          return new Error('Access Denied!');
+          return new ApolloError('Access Denied!');
         }
 
         if (desc) todo.desc = desc;
@@ -114,7 +119,7 @@ export default {
         return todo;
       } catch (error) {
         errorClg(error.message);
-        return error;
+        return new ApolloError(error.message);
       }
     },
   },
